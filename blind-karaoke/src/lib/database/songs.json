@@ -6,6 +6,7 @@
       "artist": "Queen",
       "lyrics": "Is this the real life? Is this just fantasy? Caught in a landslide, no escape from reality. Open your eyes, look up to the skies and see. I'm just a poor boy, I need no sympathy. Because I'm easy come, easy go, little high, little low. Any way the wind blows doesn't really matter to me, to me.",
       "spotify_track_id": "4uLU6hMCjMI75M1A2tKUQC",
+      "local_audio_file": "Bohemian Rhapsody - Queen.mp3",
       "genre": "Rock",
       "year": 1975,
       "difficulty": "hard"
@@ -16,6 +17,7 @@
       "artist": "John Lennon",
       "lyrics": "Imagine there's no heaven. It's easy if you try. No hell below us, above us only sky. Imagine all the people living for today. Imagine there's no countries. It isn't hard to do. Nothing to kill or die for and no religion too. Imagine all the people living life in peace.",
       "spotify_track_id": "7pKfPomDEeI4TPT6EOYjn9",
+      "local_audio_file": "Imagine - John Lennon.mp3",
       "genre": "Pop",
       "year": 1971,
       "difficulty": "medium"
@@ -26,6 +28,7 @@
       "artist": "Traditional",
       "lyrics": "Happy birthday to you. Happy birthday to you. Happy birthday, happy birthday. Happy birthday to you.",
       "spotify_track_id": null,
+      "local_audio_file": "Happy Birthday.mp3",
       "genre": "Traditional",
       "year": 1893,
       "difficulty": "easy"
@@ -36,6 +39,7 @@
       "artist": "The Beatles",
       "lyrics": "When I find myself in times of trouble, Mother Mary comes to me. Speaking words of wisdom, let it be. And in my hour of darkness she is standing right in front of me. Speaking words of wisdom, let it be. Let it be, let it be, let it be, let it be. Whisper words of wisdom, let it be.",
       "spotify_track_id": "7iN1s7xHE4ifF5povM6A48",
+      "local_audio_file": "Let It Be - The Beatles.mp3",
       "genre": "Rock",
       "year": 1970,
       "difficulty": "medium"
@@ -46,6 +50,7 @@
       "artist": "Traditional",
       "lyrics": "Twinkle, twinkle, little star. How I wonder what you are. Up above the world so high, like a diamond in the sky. Twinkle, twinkle, little star. How I wonder what you are.",
       "spotify_track_id": null,
+      "local_audio_file": "Twinkle Twinkle Little Star.mp3",
       "genre": "Children's",
       "year": 1806,
       "difficulty": "easy"

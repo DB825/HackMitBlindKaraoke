@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karaoke Game</title>
+    <style>
+        /* REPLACE THIS SECTION WITH YOUR FIGMA CSS */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .game-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .song-selection {
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .song-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .song-card {
+            background: rgba(255,255,255,0.15);
+            padding: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .song-card:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+        }
+
+        .song-card.selected {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.2);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .control-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .record-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .record-btn.recording {
+            background: #dc2626;
+            animation: pulse 1s infinite;
+        }
+
+        .music-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .music-btn.playing {
+            background: #1d4ed8;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .status {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+
+        .results {
+            background: rgba(0,0,0,0.3);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .score {
+            font-size: 2rem;
+            margin: 1rem 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- REPLACE THIS ENTIRE BODY WITH YOUR FIGMA HTML -->
+    <div class="container">
+        <h1 class="game-title">🎤 Karaoke Game</h1>
+
+        <div class="song-selection">
+            <h2>Select a Song</h2>
+            <div class="song-list" id="songList">
+                <!-- Songs will be loaded here -->
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn record-btn" id="recordBtn">
+                🎤 Start Recording
+            </button>
+            <button class="control-btn music-btn" id="musicBtn">
+                🎵 Play Music
+            </button>
+        </div>
+
+        <div class="status" id="status">
+            Select a song to begin!
+        </div>
+
+        <div class="results" id="results">
+            <h3>Performance Results</h3>
+            <div class="score" id="overallScore"></div>
+            <div id="detailedResults"></div>
+            <div id="transcribedText"></div>
+        </div>
+    </div>
+
+    <script>
+        // API connection to your Python backend
+        const API_BASE = '';
+
+        let currentSong = null;
+        let isRecording = false;
+        let isPlaying = false;
+
+        // Load songs on page load
+        async function loadSongs() {
+            try {
+                const response = await fetch('/api/songs');
+                const songs = await response.json();
+
+                const songList = document.getElementById('songList');
+                songList.innerHTML = '';
+
+                songs.forEach(song => {
+                    const songCard = document.createElement('div');
+                    songCard.className = 'song-card';
+                    songCard.innerHTML = `
+                        <h4>${song.title}</h4>
+                        <p>${song.artist}</p>
+                        <small>${song.difficulty}</small>
+                    `;
+                    songCard.onclick = () => selectSong(song);
+                    songList.appendChild(songCard);
+                });
+            } catch (error) {
+                console.error('Error loading songs:', error);
+            }
+        }
+
+        async function selectSong(song) {
+            try {
+                const response = await fetch('/api/select-song', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ song_id: song.id })
+                });
+
+                if (response.ok) {
+                    currentSong = song;
+                    document.querySelectorAll('.song-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    event.target.closest('.song-card').classList.add('selected');
+
+                    updateStatus(`Selected: ${song.title} by ${song.artist}`);
+                }
+            } catch (error) {
+                console.error('Error selecting song:', error);
+            }
+        }
+
+        async function toggleRecording() {
+            const recordBtn = document.getElementById('recordBtn');
+
+            if (!isRecording) {
+                try {
+                    const response = await fetch('/api/start-recording', { method: 'POST' });
+                    if (response.ok) {
+                        isRecording = true;
+                        recordBtn.textContent = '🛑 Stop Recording';
+                        recordBtn.classList.add('recording');
+                        updateStatus('Recording... Sing now!');
+                    }
+                } catch (error) {
+                    console.error('Error starting recording:', error);
+                }
+            } else {
+                try {
+                    const response = await fetch('/api/stop-recording', { method: 'POST' });
+                    const result = await response.json();
+
+                    isRecording = false;
+                    recordBtn.textContent = '🎤 Start Recording';
+                    recordBtn.classList.remove('recording');
+
+                    if (result.status === 'success') {
+                        showResults(result.data);
+                    } else {
+                        updateStatus('Recording stopped - no transcription available');
+                    }
+                } catch (error) {
+                    console.error('Error stopping recording:', error);
+                }
+            }
+        }
+
+        async function toggleMusic() {
+            const musicBtn = document.getElementById('musicBtn');
+
+            if (!isPlaying) {
+                try {
+                    const response = await fetch('/api/start-music', { method: 'POST' });
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        isPlaying = true;
+                        musicBtn.textContent = '⏸️ Stop Music';
+                        musicBtn.classList.add('playing');
+                        updateStatus(`Playing ${result.source === 'local' ? 'local file' : 'preview'}`);
+                    } else {
+                        updateStatus(result.message);
+                    }
+                } catch (error) {
+                    console.error('Error starting music:', error);
+                }
+            } else {
+                try {
+                    const response = await fetch('/api/stop-music', { method: 'POST' });
+
+                    isPlaying = false;
+                    musicBtn.textContent = '🎵 Play Music';
+                    musicBtn.classList.remove('playing');
+                    updateStatus('Music stopped');
+                } catch (error) {
+                    console.error('Error stopping music:', error);
+                }
+            }
+        }
+
+        function showResults(data) {
+            const results = document.getElementById('results');
+            const overallScore = document.getElementById('overallScore');
+            const detailedResults = document.getElementById('detailedResults');
+            const transcribedText = document.getElementById('transcribedText');
+
+            overallScore.textContent = `Overall Score: ${data.results.overall_score.toFixed(1)}%`;
+
+            detailedResults.innerHTML = `
+                <p>Word Error Rate: ${data.results.wer.toFixed(1)}%</p>
+                <p>Bag of Words F1: ${data.results.bow_f1.toFixed(1)}%</p>
+                <p>Bigram F1: ${data.results.bigram_f1.toFixed(1)}%</p>
+            `;
+
+            transcribedText.innerHTML = `<p><strong>You sang:</strong> "${data.transcribed_text}"</p>`;
+
+            results.style.display = 'block';
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+
+        // Event listeners
+        document.getElementById('recordBtn').onclick = toggleRecording;
+        document.getElementById('musicBtn').onclick = toggleMusic;
+
+        // Load songs when page loads
+        loadSongs();
+    </script>
+</body>
+</html>

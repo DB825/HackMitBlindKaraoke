@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blind Karaoke - Results</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 3rem;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .song-reveal {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem 0;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            animation: reveal 0.8s ease-in-out;
+        }
+
+        @keyframes reveal {
+            0% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .song-title {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #4CAF50;
+        }
+
+        .song-artist {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .song-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .song-detail {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .score-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .overall-score {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(15px);
+            grid-column: 1 / -1;
+        }
+
+        .score-value {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .score-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .detailed-scores {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(15px);
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .score-item:last-child {
+            border-bottom: none;
+        }
+
+        .score-name {
+            font-weight: 500;
+        }
+
+        .score-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin: 0 1rem;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 4px;
+            transition: width 1s ease-in-out;
+            animation: fillBar 1.5s ease-in-out;
+        }
+
+        @keyframes fillBar {
+            0% { width: 0%; }
+        }
+
+        .score-percent {
+            font-weight: bold;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .transcription-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            backdrop-filter: blur(15px);
+            text-align: left;
+        }
+
+        .transcription-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: #4CAF50;
+        }
+
+        .transcription-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            font-style: italic;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .performance-message {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .excellent { color: #4CAF50; }
+        .good { color: #FF9800; }
+        .moderate { color: #2196F3; }
+        .needs-improvement { color: #f44336; }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .primary-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        }
+
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .secondary-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .song-reveal {
+                padding: 2rem;
+            }
+
+            .song-title {
+                font-size: 1.8rem;
+            }
+
+            .song-artist {
+                font-size: 1.1rem;
+            }
+
+            .score-value {
+                font-size: 3rem;
+            }
+
+            .score-section {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .action-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎉 Song Revealed!</h1>
+        </div>
+
+        <div class="song-reveal">
+            <div class="song-title">{{ song.title }}</div>
+            <div class="song-artist">by {{ song.artist }}</div>
+            <div class="song-details">
+                <div class="song-detail">
+                    <strong>Genre:</strong> {{ song.genre }}
+                </div>
+                <div class="song-detail">
+                    <strong>Year:</strong> {{ song.year }}
+                </div>
+                <div class="song-detail">
+                    <strong>Difficulty:</strong> {{ song.difficulty }}
+                </div>
+            </div>
+        </div>
+
+        <div class="score-section">
+            <div class="overall-score">
+                <div class="score-value" id="overallScore">{{ "%.1f"|format(results.overall_score) }}%</div>
+                <div class="score-label">Overall Performance</div>
+                <div class="performance-message" id="performanceMessage"></div>
+            </div>
+
+            <div class="detailed-scores">
+                <h3 style="margin-bottom: 1.5rem; color: #4CAF50;">Detailed Breakdown</h3>
+
+                <div class="score-item">
+                    <div class="score-name">Word Accuracy</div>
+                    <div class="score-bar">
+                        <div class="score-fill" style="width: {{ (100 - results.wer)|round }}%;"></div>
+                    </div>
+                    <div class="score-percent">{{ "%.1f"|format(100 - results.wer) }}%</div>
+                </div>
+
+                <div class="score-item">
+                    <div class="score-name">Vocabulary Match</div>
+                    <div class="score-bar">
+                        <div class="score-fill" style="width: {{ results.bow_f1|round }}%;"></div>
+                    </div>
+                    <div class="score-percent">{{ "%.1f"|format(results.bow_f1) }}%</div>
+                </div>
+
+                <div class="score-item">
+                    <div class="score-name">Phrase Structure</div>
+                    <div class="score-bar">
+                        <div class="score-fill" style="width: {{ results.bigram_f1|round }}%;"></div>
+                    </div>
+                    <div class="score-percent">{{ "%.1f"|format(results.bigram_f1) }}%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="transcription-section">
+            <div class="transcription-title">What You Sang</div>
+            <div class="transcription-text">"{{ transcribed_text }}"</div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="/mood-selection" class="action-btn primary-btn">🎵 Play Again</a>
+            <a href="/" class="action-btn secondary-btn">🏠 Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Set performance message based on score
+        const overallScore = {{ results.overall_score }};
+        const messageElement = document.getElementById('performanceMessage');
+
+        if (overallScore >= 80) {
+            messageElement.textContent = 'Excellent performance! 🌟';
+            messageElement.className = 'performance-message excellent';
+        } else if (overallScore >= 60) {
+            messageElement.textContent = 'Good job! 👍';
+            messageElement.className = 'performance-message good';
+        } else if (overallScore >= 40) {
+            messageElement.textContent = 'Not bad, keep practicing! 😊';
+            messageElement.className = 'performance-message moderate';
+        } else {
+            messageElement.textContent = 'Keep trying, you\'ll get better! 💪';
+            messageElement.className = 'performance-message needs-improvement';
+        }
+
+        // Add some animation delays for the score bars
+        const scoreFills = document.querySelectorAll('.score-fill');
+        scoreFills.forEach((fill, index) => {
+            fill.style.animationDelay = `${index * 0.3}s`;
+        });
+    </script>
+</body>
+</html>

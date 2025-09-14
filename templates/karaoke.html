@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blind Karaoke - Sing Along</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .header {
+            margin-bottom: 3rem;
+        }
+
+        .mood-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .mystery-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem 0;
+            backdrop-filter: blur(15px);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .mystery-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .mystery-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .mystery-subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 1.5rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .karaoke-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            font-size: 1.3rem;
+            min-width: 250px;
+        }
+
+        .karaoke-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        }
+
+        .karaoke-btn.active {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            animation: recording-pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes recording-pulse {
+            0% { box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4); }
+            50% { box-shadow: 0 6px 25px rgba(244, 67, 54, 0.8); }
+            100% { box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4); }
+        }
+
+        .status-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-text {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            margin-bottom: 1rem;
+            color: #4CAF50;
+        }
+
+        .instructions ol {
+            padding-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .transcribing-spinner {
+            display: none;
+            margin: 1rem 0;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .back-btn {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 1rem;
+                display: inline-block;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .game-controls {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .control-btn {
+                min-width: 250px;
+                padding: 1.2rem 2rem;
+            }
+
+            .mystery-box {
+                padding: 2rem;
+            }
+
+            .mystery-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/mood-selection" class="back-btn">← Back to Moods</a>
+
+    <div class="container">
+        <div class="header">
+            <div class="mood-badge">{{ mood }} mood</div>
+            <h1 class="title">Blind Karaoke Challenge</h1>
+        </div>
+
+        <div class="mystery-box">
+            <div class="mystery-icon">❓</div>
+            <div class="mystery-text">{{ song_title }}</div>
+            <div class="mystery-subtitle">Can you guess what song this is just by singing along?</div>
+        </div>
+
+        <div class="game-controls">
+            <button class="control-btn karaoke-btn" id="karaokeBtn">
+                🎤 Start Karaoke
+            </button>
+        </div>
+
+        <div class="status-display">
+            <div class="status-text" id="statusText">Press "Start Karaoke" to begin singing along!</div>
+            <div class="transcribing-spinner" id="spinner">
+                <div class="spinner"></div>
+                <p>Transcribing your performance...</p>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>How to Play:</h3>
+            <ol>
+                <li>Click "Start Karaoke" to begin playing the mystery song and start recording</li>
+                <li>Sing along to the music (lyrics won't be shown!)</li>
+                <li>Click "Stop Karaoke" when you're done singing</li>
+                <li>Watch as we transcribe your vocals and reveal the song</li>
+                <li>Get your accuracy score and see how well you did!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let isKaraokeActive = false;
+        let microphonePermission = false;
+
+        const karaokeBtn = document.getElementById('karaokeBtn');
+        const statusText = document.getElementById('statusText');
+        const spinner = document.getElementById('spinner');
+
+        // Request microphone permission on page load
+        async function requestMicrophonePermission() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+                microphonePermission = true;
+                stream.getTracks().forEach(track => track.stop()); // Stop the stream, we just needed permission
+                updateStatus('Microphone ready! Press "Start Karaoke" to begin.');
+            } catch (error) {
+                console.error('Microphone permission denied:', error);
+                updateStatus('Please allow microphone access to use karaoke feature.');
+                karaokeBtn.disabled = true;
+                karaokeBtn.textContent = '🎤 Microphone Access Required';
+            }
+        }
+
+        karaokeBtn.addEventListener('click', toggleKaraoke);
+
+        async function toggleKaraoke() {
+            if (!microphonePermission) {
+                await requestMicrophonePermission();
+                return;
+            }
+
+            if (!isKaraokeActive) {
+                try {
+                    updateStatus('Starting karaoke...');
+                    karaokeBtn.disabled = true;
+
+                    const response = await fetch('/api/start-karaoke', { method: 'POST' });
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        isKaraokeActive = true;
+                        karaokeBtn.textContent = '🛑 Stop Karaoke';
+                        karaokeBtn.classList.add('active');
+                        karaokeBtn.disabled = false;
+
+                        const source = result.music_source === 'local' ? 'your audio file' : 'Spotify preview';
+                        updateStatus(`🎵🎤 Karaoke active! Playing ${source} and recording your voice.`);
+                    } else {
+                        updateStatus(`❌ ${result.message || 'Failed to start karaoke'}`);
+                        karaokeBtn.disabled = false;
+
+                        // If no audio available, show helpful message
+                        if (result.message && result.message.includes('No audio source')) {
+                            setTimeout(() => {
+                                updateStatus('💡 Add MP3 files to the local_audio folder or check Spotify connection.');
+                            }, 2000);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error starting karaoke:', error);
+                    updateStatus('❌ Error starting karaoke');
+                    karaokeBtn.disabled = false;
+                }
+            } else {
+                try {
+                    // Show transcribing spinner
+                    spinner.style.display = 'block';
+                    updateStatus('🔄 Stopping karaoke and processing your performance...');
+
+                    karaokeBtn.disabled = true;
+
+                    const response = await fetch('/api/stop-karaoke', { method: 'POST' });
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        // Redirect to results page
+                        window.location.href = result.redirect;
+                    } else {
+                        spinner.style.display = 'none';
+                        updateStatus(`❌ ${result.message || 'Failed to process performance'}`);
+                        karaokeBtn.disabled = false;
+                        isKaraokeActive = false;
+                        karaokeBtn.textContent = '🎤 Start Karaoke';
+                        karaokeBtn.classList.remove('active');
+                    }
+                } catch (error) {
+                    console.error('Error stopping karaoke:', error);
+                    spinner.style.display = 'none';
+                    updateStatus('❌ Error processing performance');
+                    karaokeBtn.disabled = false;
+                }
+            }
+        }
+
+        function updateStatus(message) {
+            statusText.textContent = message;
+        }
+
+        // Reset karaoke state if user leaves page
+        window.addEventListener('beforeunload', () => {
+            if (isKaraokeActive) {
+                fetch('/api/stop-karaoke', { method: 'POST' });
+            }
+        });
+
+        // Request microphone permission when page loads
+        requestMicrophonePermission();
+    </script>
+</body>
+</html>

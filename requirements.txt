@@ -1,0 +1,11 @@
+flask
+flask-cors
+whisper
+spotipy
+sounddevice
+pygame
+requests
+numpy
+scipy
+jinja2
+gunicorn
