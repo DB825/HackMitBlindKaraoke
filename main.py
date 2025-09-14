@@ -26,17 +26,37 @@ class KaraokeGame:
     def select_random_song(self):
         import random
         self.current_song = random.choice(self.songs_database)
-        print(f"Selected song: {self.current_song['title']} by {self.current_song['artist']}")
+        print(f"Selected song: {self.current_song['title']} by {self.current_song['artist']} ({self.current_song['genre']})")
         return self.current_song
 
     def select_song_by_id(self, song_id):
         for song in self.songs_database:
             if song['id'] == song_id:
                 self.current_song = song
-                print(f"Selected song: {self.current_song['title']} by {self.current_song['artist']}")
+                print(f"Selected song: {self.current_song['title']} by {self.current_song['artist']} ({self.current_song['genre']})")
                 return self.current_song
         print(f"Song with ID {song_id} not found")
         return None
+
+    def get_available_genres(self):
+        """Get all unique genres from the songs database"""
+        genres = set()
+        for song in self.songs_database:
+            genres.add(song['genre'])
+        return sorted(list(genres))
+
+    def select_random_song_by_genre(self, genre):
+        """Select a random song from a specific genre"""
+        import random
+        genre_songs = [song for song in self.songs_database if song['genre'].lower() == genre.lower()]
+
+        if not genre_songs:
+            print(f"No songs found for genre: {genre}")
+            return None
+
+        self.current_song = random.choice(genre_songs)
+        print(f"Selected {genre} song: {self.current_song['title']} by {self.current_song['artist']}")
+        return self.current_song
 
     def start_game(self):
         print("=== Karaoke Game ===")
@@ -52,9 +72,20 @@ class KaraokeGame:
             print(f"Created folder: {self.local_audio_folder}")
             print("Tip: Place MP3/WAV files here to use as background music")
 
+        # Show available genres
+        available_genres = self.get_available_genres()
+        print(f"\nAvailable genres: {', '.join(available_genres)}")
+
         # Select a song
-        song_choice = input("\nEnter song ID (1-5) or press Enter for random: ").strip()
-        if song_choice:
+        print("\nChoose selection method:")
+        print("1. Enter song ID (1-5)")
+        print("2. Select by genre")
+        print("3. Random song")
+
+        selection_method = input("Enter your choice (1/2/3): ").strip()
+
+        if selection_method == "1":
+            song_choice = input("Enter song ID (1-5): ").strip()
             try:
                 song_id = int(song_choice)
                 if not self.select_song_by_id(song_id):
@@ -62,8 +93,15 @@ class KaraokeGame:
             except ValueError:
                 print("Invalid song ID")
                 return
-        else:
+        elif selection_method == "2":
+            genre_choice = input(f"Enter genre ({'/'.join(available_genres)}): ").strip()
+            if not self.select_random_song_by_genre(genre_choice):
+                return
+        elif selection_method == "3":
             self.select_random_song()
+        else:
+            print("Invalid selection method")
+            return
 
         print(f"\nDifficulty: {self.current_song['difficulty']}")
         print("Ready to play! Use the controls above.")

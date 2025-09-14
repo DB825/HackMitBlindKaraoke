@@ -25,12 +25,12 @@ class KaraokeWebGame:
         if not os.path.exists(self.local_audio_folder):
             os.makedirs(self.local_audio_folder)
 
-        # Mood-based song categorization
+        # Mood-based song categorization based on the moods in songs.json
         self.mood_songs = {
-            'happy': [1, 2],  # Happy Birthday, Imagine
-            'sad': [4],       # Let It Be
-            'energetic': [1], # Bohemian Rhapsody
-            'chill': [5, 2]   # Twinkle Twinkle, Imagine
+            'happy': [3],      # Happy Birthday (celebratory, joyful, cheerful)
+            'sad': [],         # No songs currently tagged as sad
+            'energetic': [2],  # Toxic (energetic, seductive, playful)
+            'chill': [4, 5]    # Let It Be (peaceful, reflective, calming), Twinkle Twinkle (innocent, peaceful, nostalgic)
         }
 
     def load_songs_database(self):
@@ -39,14 +39,16 @@ class KaraokeWebGame:
             return data['songs']
 
     def get_songs_by_mood(self, mood):
-        song_ids = self.mood_songs.get(mood, [1])  # Default to first song
+        song_ids = self.mood_songs.get(mood, [])  # Return empty list if mood not found
         return [song for song in self.songs_database if song['id'] in song_ids]
 
     def select_random_song_by_mood(self, mood):
         mood_songs = self.get_songs_by_mood(mood)
         if mood_songs:
             return random.choice(mood_songs)
-        return self.songs_database[0]  # Fallback
+        # Fallback to first song if no mood songs available
+        print(f"Warning: No songs found for mood '{mood}', using fallback")
+        return self.songs_database[0]
 
     def find_local_audio_file(self, song):
         """Find local audio file for the song using tagged filename"""
