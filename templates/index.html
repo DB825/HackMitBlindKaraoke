@@ -158,7 +158,6 @@
             <h3>Performance Results</h3>
             <div class="score" id="overallScore"></div>
             <div id="detailedResults"></div>
-            <div id="transcribedText"></div>
         </div>
     </div>
 
@@ -289,7 +288,6 @@
             const results = document.getElementById('results');
             const overallScore = document.getElementById('overallScore');
             const detailedResults = document.getElementById('detailedResults');
-            const transcribedText = document.getElementById('transcribedText');
 
             overallScore.textContent = `Overall Score: ${data.results.overall_score.toFixed(1)}%`;
 
@@ -299,7 +297,7 @@
                 <p>Bigram F1: ${data.results.bigram_f1.toFixed(1)}%</p>
             `;
 
-            transcribedText.innerHTML = `<p><strong>You sang:</strong> "${data.transcribed_text}"</p>`;
+            // Transcribed text is used for scoring but not displayed
 
             results.style.display = 'block';
         }

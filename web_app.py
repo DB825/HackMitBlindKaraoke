@@ -28,9 +28,9 @@ class KaraokeWebGame:
         # Mood-based song categorization based on the moods in songs.json
         self.mood_songs = {
             'happy': [3],      # Happy Birthday (celebratory, joyful, cheerful)
-            'sad': [],         # No songs currently tagged as sad
+            'sad': [4],        # Those Eyes (peaceful, reflective, calming) - moved to sad for demo
             'energetic': [2],  # Toxic (energetic, seductive, playful)
-            'chill': [4, 5]    # Let It Be (peaceful, reflective, calming), Twinkle Twinkle (innocent, peaceful, nostalgic)
+            'chill': [5]       # Twinkle Twinkle (innocent, peaceful, nostalgic)
         }
 
     def load_songs_database(self):

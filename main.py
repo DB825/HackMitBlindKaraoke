@@ -122,7 +122,6 @@ class KaraokeGame:
             print("\nStopping recording...")
             transcribed_text = self.transcriber.stop_recording()
             if transcribed_text:
-                print(f"You sang: {transcribed_text}")
                 self.analyze_performance(transcribed_text)
             self.is_recording = False
         else:
