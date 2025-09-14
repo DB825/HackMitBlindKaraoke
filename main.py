@@ -2,6 +2,7 @@ import json
 import keyboard
 import time
 import threading
+import os
 from Transcriber import AudioTranscriber
 from LyricsComparison import LyricsComparator
 from spotify_stuff import SpotifyController
@@ -15,6 +16,7 @@ class KaraokeGame:
         self.current_song = None
         self.is_recording = False
         self.is_playing = False
+        self.local_audio_folder = "local_audio"  # Folder for local audio files
 
     def load_songs_database(self):
         with open('blind-karaoke/src/lib/database/songs.json', 'r') as f:
@@ -37,11 +39,18 @@ class KaraokeGame:
         return None
 
     def start_game(self):
-        print("=== Blind Karaoke Game ===")
-        print("Controls:")
+        print("=== Karaoke Game ===")
+        print("Integrated music player enabled")
+        print("\nControls:")
         print("- ENTER: Start/Stop recording")
-        print("- SPACE: Play/Stop song")
+        print("- SPACE: Play/Stop music")
         print("- ESC: Quit game")
+
+        # Create local audio folder if it doesn't exist
+        if not os.path.exists(self.local_audio_folder):
+            os.makedirs(self.local_audio_folder)
+            print(f"Created folder: {self.local_audio_folder}")
+            print("Tip: Place MP3/WAV files here to use as background music")
 
         # Select a song
         song_choice = input("\nEnter song ID (1-5) or press Enter for random: ").strip()
@@ -83,22 +92,68 @@ class KaraokeGame:
             self.transcriber.start_recording()
             self.is_recording = True
 
+    def find_local_audio_file(self, song_title, artist):
+        """Find local audio file for the song"""
+        if not os.path.exists(self.local_audio_folder):
+            return None
+
+        # Common audio extensions
+        extensions = ['.mp3', '.wav', '.ogg', '.m4a']
+
+        # Try different filename patterns
+        patterns = [
+            f"{song_title}",
+            f"{artist} - {song_title}",
+            f"{song_title} - {artist}",
+            f"{song_title.lower()}",
+            f"{artist.lower()} - {song_title.lower()}"
+        ]
+
+        for pattern in patterns:
+            for ext in extensions:
+                filename = pattern + ext
+                filepath = os.path.join(self.local_audio_folder, filename)
+                if os.path.exists(filepath):
+                    return filepath
+        return None
+
     def toggle_music(self, e):
         if not self.current_song:
             print("No song selected!")
             return
 
-        if self.current_song['spotify_track_id']:
-            if self.is_playing:
-                print("\nStopping music...")
-                self.spotify.pause_playback()
-                self.is_playing = False
-            else:
-                print("\nStarting music...")
-                self.spotify.play_track(self.current_song['spotify_track_id'])
-                self.is_playing = True
+        if self.is_playing:
+            print("\nStopping music...")
+            self.spotify.pause_playback()
+            self.is_playing = False
         else:
-            print("This song is not available on Spotify")
+            print("\nStarting music...")
+
+            # Try local file first
+            local_file = self.find_local_audio_file(
+                self.current_song['title'],
+                self.current_song['artist']
+            )
+
+            if local_file:
+                print(f"Playing local file: {os.path.basename(local_file)}")
+                if self.spotify.play_local_file(local_file):
+                    self.is_playing = True
+                else:
+                    print("Failed to play local file")
+            elif self.current_song['spotify_track_id']:
+                print(f"Playing preview (30s): {self.current_song['title']}")
+                if self.spotify.play_track(
+                    self.current_song['spotify_track_id'],
+                    song_title=self.current_song['title'],
+                    artist=self.current_song['artist']
+                ):
+                    self.is_playing = True
+                else:
+                    print("Failed to play preview")
+            else:
+                print("No audio source available")
+                print("Tip: Add an audio file to the local_audio folder")
 
     def analyze_performance(self, transcribed_text):
         if not self.current_song:
@@ -130,7 +185,7 @@ class KaraokeGame:
         if self.is_recording:
             self.transcriber.stop_recording()
         if self.is_playing:
-            self.spotify.pause_playback()
+            self.spotify.stop_playback()
 
 if __name__ == "__main__":
     game = KaraokeGame()
